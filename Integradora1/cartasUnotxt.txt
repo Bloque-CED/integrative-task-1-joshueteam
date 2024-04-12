@@ -1,0 +1,10 @@
+18 cartas azules del 1 al 9
+18 cartas rojas del 1 al 9
+18 cartas amarillas del 1 al 9
+18 cartas verdes del 1 al 9
+8 cartas coma 2, 2 de cada color
+8 cartas cambiar sentido, 2 de cada color
+8 cartas pierde turno, 2 de cada color
+8 cartas coma 1, dos de cada color
+4 cartas cambiar color, sin color ni numero
+
