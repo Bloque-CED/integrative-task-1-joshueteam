@@ -6,7 +6,11 @@ public interface IPriorityQueue<T> {
     T poll();
 
 
+
     T peek();
+
+
+
 
 
     boolean isEmpty();

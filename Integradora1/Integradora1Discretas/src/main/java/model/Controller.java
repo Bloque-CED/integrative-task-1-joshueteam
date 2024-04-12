@@ -27,7 +27,6 @@ public class Controller {
         topCard = 0;
         gameDeck = new Stack<Integer>() ;
         cardQueue = new Queue<Integer>();
-        playerQueue = new PriorityQueue<>();
         useCards();
 
 
@@ -84,6 +83,7 @@ public class Controller {
     }
 
     public void createPlayersAndDealCards(int numPlayers) {
+        playerQueue = new PriorityQueue<>();
         for (int i = 1; i <= numPlayers; i++) {
             Player player = new Player("p" + i, i);
             players.add(player);
