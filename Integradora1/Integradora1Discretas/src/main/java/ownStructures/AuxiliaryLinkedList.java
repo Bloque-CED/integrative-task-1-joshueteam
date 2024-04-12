@@ -1,7 +1,7 @@
 package ownStructures;
 
 public class AuxiliaryLinkedList <T>{
-    private Node<T> head;
+    private NodeS<T> head;
     private int size;
 
     public AuxiliaryLinkedList() {
@@ -10,7 +10,7 @@ public class AuxiliaryLinkedList <T>{
     }
 
     public void addFirst(T item) {
-        head = new Node<>(item, head);
+        head = new NodeS<>(item, head);
         size++;
     }
 
@@ -31,13 +31,5 @@ public class AuxiliaryLinkedList <T>{
         return size;
     }
 
-    private static class Node<T> {
-        T data;
-        Node<T> next;
 
-        Node(T data, Node<T> next) {
-            this.data = data;
-            this.next = next;
-        }
-    }
 }
