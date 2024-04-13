@@ -1,4 +1,4 @@
-package ownStructures;
+package ownStructures.Stack;
 
 public class NodeS<T> {
     T data;

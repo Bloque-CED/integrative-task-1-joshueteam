@@ -1,4 +1,4 @@
-package ownStructures;
+package ownStructures.HashTable;
 
 public class NodeH<K,V> {
     K key;

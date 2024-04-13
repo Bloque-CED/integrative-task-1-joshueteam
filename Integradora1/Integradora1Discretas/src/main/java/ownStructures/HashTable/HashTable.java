@@ -1,4 +1,4 @@
-package ownStructures;
+package ownStructures.HashTable;
 
 import java.lang.reflect.Array;
 

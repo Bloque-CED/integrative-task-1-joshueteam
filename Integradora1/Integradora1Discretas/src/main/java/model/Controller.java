@@ -1,40 +1,33 @@
 package model;
 
-import ownStructures.*;
+import ownStructures.Heap.NodePQ;
+import ownStructures.Heap.PriorityQueueH;
+import ownStructures.Queue.IQueue;
+import ownStructures.Queue.Queue;
+import ownStructures.Stack.IStack;
+import ownStructures.Stack.Stack;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-
-
 
 public class Controller {
-
     private int topCard;
-
     private Deck deck;
-
     private ArrayList<Player> players;
-
     private IStack<Integer> gameDeck;
-
     private IQueue<Integer> cardQueue;
-
-    private IPriorityQueue<Player> playerQueue;
+    private PriorityQueueH<Player> playerQueue;
 
     public Controller(){
         deck = new Deck();
         players = new ArrayList<>();
         topCard = 0;
-        gameDeck = new Stack<Integer>() ;
-        cardQueue = new Queue<Integer>();
+        gameDeck = new Stack<>() ;
+        cardQueue = new Queue<>();
         useCards();
-
-
     }
 
     public Card getCard(int key){
-        Card card = deck.getCardByKey(key);
-        return card;
+        return deck.getCardByKey(key);
     }
 
     public void useCards(){
@@ -45,26 +38,27 @@ public class Controller {
         return topCard;
     }
 
-    //to start the top card at the beggining of the game we need to make sure that the first card is not a special one.
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public NodePQ<Player> getCurrentPlayer(){
+        return playerQueue.peek();
+    }
+
     public void startTopCard(){
         if (topCard == 0){
             boolean noSpecial = false;
             while(!noSpecial){
-            int numCard = gameDeck.pop();
-            if(getCard(numCard).isSpecial()){
-                gameDeck.push(numCard);
-                noSpecial = false;
-            }else{
-                topCard = numCard;
-                noSpecial = true;
-            }
+                int numCard = gameDeck.pop();
+                if(getCard(numCard).isSpecial()){
+                    gameDeck.push(numCard);
+                }else{
+                    topCard = numCard;
+                    noSpecial = true;
+                }
             }
         }
-    }
-
-    public int getCardFromPlayer(int num, int card){
-        Player player = getPlayerByPriority(num);
-        return player.getHand().get(card);
     }
 
     public boolean isPlayable(int cardInt){
@@ -72,29 +66,87 @@ public class Controller {
         return card.playable(getCard(topCard));
     }
 
+    public void playCard(int selectedCard, String color) {
+        NodePQ<Player> currentPlayer = getCurrentPlayer();
+        currentPlayer.getData().getHand().remove(Integer.valueOf(selectedCard));
+        setTopCard(selectedCard);
+        CardType type = identifyCardType(selectedCard);
+        switch (type){
+            case SKIP:
+                nextPlayer();
+                nextPlayer();
+                break;
+            case REVERSE:
+                reverse();
+                break;
+            case COLOR_CHANGER:
+                changeColor(selectedCard, selectColor(color));
+                nextPlayer();
+                break;
+            case DRAW_TWO:
+                nextPlayer();
+                drawTWO(getCurrentPlayer().getData());
+                break;
+            default:
+                nextPlayer();
+                break;
+        }
+    }
+
     public void setTopCard(int topCard) {
         this.topCard = topCard;
     }
 
-    public void drawCard(int num){
-        cardQueue.enqueue(gameDeck.pop());
-        Player player = getPlayerByPriority(num);
-        player.getHand().add(cardQueue.dequeue());
+    public Color selectColor(String color){
+        Color newColor = null;
+        switch (color.toUpperCase()){
+            case "GREEN":
+                newColor = Color.GREEN;
+                break;
+            case "BLUE":
+                newColor = Color.BLUE;
+                break;
+            case "RED":
+                newColor = Color.RED;
+                break;
+            case "YELLOW":
+                newColor = Color.YELLOW;
+                break;
+            default:
+                System.out.println("invalid color, current color will be keept");
+                break;
+        }
+
+        return newColor;
+    }
+
+    public int drawCard(int num){
+        if (!gameDeck.isEmpty()) {
+            int card = gameDeck.pop();
+            Player player = getPlayerByPriority(num);
+            player.getHand().add(card);
+            return card;
+        }
+        return -1;
+    }
+
+    public boolean isColorChanger(int cardIndex) {
+        Card card = getCard(cardIndex);
+        return card.getType() == CardType.COLOR_CHANGER;
     }
 
     public void createPlayersAndDealCards(int numPlayers) {
-        playerQueue = new PriorityQueue<>();
+        playerQueue = new PriorityQueueH<>(true);
         for (int i = 1; i <= numPlayers; i++) {
-            Player player = new Player("p" + i, i);
+            Player player = new Player("P" + i);
             players.add(player);
         }
 
-        for (int i = 0; i < 7 * players.size(); i++) {
+        for (int i = 0; i < 7 * numPlayers; i++) {
             if (!gameDeck.isEmpty()) {
                 cardQueue.enqueue(gameDeck.pop());
             }
         }
-
 
         for (Player player : players) {
             for (int i = 0; i < 7; i++) {
@@ -104,8 +156,8 @@ public class Controller {
             }
         }
 
-        for(Player player : players){
-            playerQueue.offer(player);
+        for(int i = 1; i <= players.size(); i++){
+            playerQueue.enqueue(new NodePQ<>(players.get(i-1), i));
         }
     }
 
@@ -114,7 +166,7 @@ public class Controller {
         int numPlayers = playerQueue.size();
 
         for (int i = 0; i < numPlayers; i++) {
-            Player player = playerQueue.poll();
+            Player player = playerQueue.dequeue().getData();
             if (player != null) {
                 decksStringBuilder.append("Deck of player ").append(player.getId()).append(":\n");
                 for (int cardKey : player.getHand()) {
@@ -125,10 +177,9 @@ public class Controller {
             }
         }
 
-        for(Player player : players){
-            playerQueue.offer(player);
+        for(int i = 1; i <= players.size(); i++){
+            playerQueue.enqueue(new NodePQ<>(players.get(i-1), i));
         }
-
 
         return decksStringBuilder.toString();
     }
@@ -147,62 +198,68 @@ public class Controller {
     }
 
     private Player getPlayerByPriority(int num) {
-        Player returnPlayer = null;
-        for(Player player : players){
-            if(player.getPriority() == num){
-                returnPlayer = player;
+        NodePQ<Player> returnPlayer = null;
+        for(NodePQ<Player> node : playerQueue.getHeap()){
+            if(node.getPriority() == num){
+                returnPlayer = node;
+                break;
             }
         }
-        return returnPlayer;
-
+        return returnPlayer.getData();
     }
 
+    public void nextPlayer() {
+        playerQueue.assignPriority();
+        playerQueue.enqueue(playerQueue.dequeue());
+    }
 
+    public CardType identifyCardType(int cardIndex) {
+        if (cardIndex >= 0 && cardIndex < 109) {
+            return deck.getCardByKey(cardIndex).getType();
+        } else {
+            return null;
+        }
+    }
 
+    public void drawTWO(Player nextPlayer) {
+        int drawnCards = 2;
+        for (int i = 0; i < drawnCards; i++) {
+            nextPlayer.getHand().add(gameDeck.pop());
+        }
+        nextPlayer();
+    }
 
+    public void changeColor(int currentCard, Color newColor) {
+        if (newColor != null) {
+            Card lastPlayedCard = getCard(currentCard);
+            lastPlayedCard.setColor(newColor);
+        }
+    }
 
+    public void reverse(){
+        PriorityQueueH<Player> reversedQueue = new PriorityQueueH<>(true);
+        while (!playerQueue.isEmpty()) {
+            NodePQ<Player> playerNode = playerQueue.dequeue();
+            playerNode.setPriority(-playerNode.getPriority());
+            reversedQueue.enqueue(playerNode);
+        }
+        playerQueue = reversedQueue;
+    }
 
+    public void printFullDeck() {
+        IStack<Integer> tempStack = new Stack<>();
+        while (!gameDeck.isEmpty()) {
+            int cardKey = gameDeck.pop();
+            tempStack.push(cardKey);
+            Card card = deck.getCardByKey(cardKey);
+            System.out.println(card.toString());
+        }
+        while (!tempStack.isEmpty()) {
+            gameDeck.push(tempStack.pop());
+        }
+    }
 
-
-
-
-
-
-
-    /**
-     * 1. Generar o trear el mazo de las cartas
-     */
-
-
-/**
- *2.  Repartir a los N jugadores que haya las 7 cartas
- */
-
-/**
- *3.  poner la primera carta en el mazo de descarte
- */
-
-/**
- * bucle para el paso 4 y 5
- */
-
-
-/**
- * 4. Hacer que el jugador p1 se le muestre el mazo y escoja su carta, y tambien la opcion comer(sacar de la pila del mazo del juego, pasarlo a la cola y luego ponerlo en la mano(arraylist) del jugador)
- */
-
-/**
- *5. poner carta del usuario (quitarlo del arraylist) en la pila del (con push) mazo de descarte
- */
-
-/**
- * 6. pasa a el siguiente jugador se le muestran las opciones
- */
-
-/**
- *7.  validar cartas especiales:
- * - revertir:
- */
-
-
+    public Deck getDeck() {
+        return deck;
+    }
 }

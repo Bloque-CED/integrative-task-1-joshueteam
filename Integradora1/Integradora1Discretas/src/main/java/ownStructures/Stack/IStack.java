@@ -1,4 +1,4 @@
-package ownStructures;
+package ownStructures.Stack;
 
 public interface IStack<T> {
     void push(T item);

@@ -1,4 +1,6 @@
-package ownStructures;
+package ownStructures.Stack;
+
+import ownStructures.Stack.Node;
 
 public class AuxiliaryDoubleLinkedList<E>{
     Node<E> head;

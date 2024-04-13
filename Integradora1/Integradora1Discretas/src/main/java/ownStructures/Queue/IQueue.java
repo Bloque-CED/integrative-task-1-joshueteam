@@ -1,4 +1,4 @@
-package ownStructures;
+package ownStructures.Queue;
 
 public interface IQueue <E>{
     void enqueue(E item);

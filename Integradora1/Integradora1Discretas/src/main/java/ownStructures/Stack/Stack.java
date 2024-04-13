@@ -1,5 +1,4 @@
-package ownStructures;
-import java.util.ArrayList;
+package ownStructures.Stack;
 
 public class Stack<T> implements IStack<T> {
     private AuxiliaryLinkedList<T> stackList;
@@ -31,12 +30,14 @@ public class Stack<T> implements IStack<T> {
 
     @Override
     public boolean isEmpty() {
-        return stackList.size() == 0;
+        if (stackList.size() == 0){
+            return true;
+        }
+        return false;
     }
 
     @Override
     public int size() {
         return stackList.size();
     }
-
 }

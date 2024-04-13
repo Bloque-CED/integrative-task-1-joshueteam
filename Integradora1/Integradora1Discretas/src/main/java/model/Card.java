@@ -2,11 +2,10 @@ package model;
 
 
 public class Card {
-
     private Color color;
     private CardType type;
-
     private int number;
+
     public Card(int number, Color color, CardType type) {
         this.number = number;
         this.color = color;
@@ -16,12 +15,10 @@ public class Card {
         this(0, color, null);
     }
 
-
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -70,7 +67,6 @@ public class Card {
         return false;
     }
 
-
     @Override
     public String toString() {
         StringBuilder cardInfo = new StringBuilder(color.toString()); // Iniciamos con el color de la carta
@@ -85,8 +81,6 @@ public class Card {
             cardInfo.append(" Reverse");
         } else if (type == CardType.DRAW_TWO) {
             cardInfo.append(" Draw two");
-        } else if (type == CardType.DRAW_ONE) {
-            cardInfo.append(" Draw one");
         } else if(type == null){
             cardInfo.append(" Selected Color");
         }
@@ -97,6 +91,13 @@ public class Card {
         return cardInfo.toString();
     }
 
+    public CardType getType() {
+        return type;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
 }
 
 

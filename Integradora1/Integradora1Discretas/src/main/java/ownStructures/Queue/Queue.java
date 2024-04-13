@@ -1,4 +1,6 @@
-package ownStructures;
+package ownStructures.Queue;
+
+import ownStructures.Stack.AuxiliaryDoubleLinkedList;
 
 public class Queue<E> implements IQueue<E> {
     AuxiliaryDoubleLinkedList<E> doubleLinkedList;
@@ -31,6 +33,4 @@ public class Queue<E> implements IQueue<E> {
     public int size() {
         return doubleLinkedList.size();
     }
-
-
 }
